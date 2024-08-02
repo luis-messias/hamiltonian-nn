@@ -19,8 +19,8 @@ def dynamics_fn(t, coords):
     S = np.concatenate([Dp1, Dp2, -Dq1, -Dq2], axis=-1)
     return S
 
-def get_trajectory(t_span=[0,3], numberofpouints=100, y0=None, noise_std=0.01, **kwargs):
-    t_eval = np.linspace(t_span[0], t_span[1], num=numberofpouints)
+def get_trajectory(t_span=[0,5], timescale=1000, y0=None, noise_std=0, **kwargs):
+    t_eval = np.linspace(t_span[0], t_span[1], int(timescale*(t_span[1]-t_span[0])))
     
     # get initial state
     if y0 is None:
@@ -58,8 +58,7 @@ def get_dataset(seed=0, samples=50, test_split=0.5, **kwargs):
     np.random.seed(seed)
     xs, dxs = [], []
     for s in range(samples):
-        if s%10 == 0:
-            print(f'Sample number: {s}')
+        print(f'Sample number: {s}')
         q1, q2, p1, p2, Dq1, Dq2, Dp1, Dp2, t = get_trajectory(**kwargs)
         xs.append( np.stack( [q1, q2, p1, p2]).T )
         dxs.append( np.stack( [Dq1, Dq2, Dp1, Dp2]).T )
@@ -76,9 +75,7 @@ def get_dataset(seed=0, samples=50, test_split=0.5, **kwargs):
     return data
 
 if __name__ == "__main__":
-    t_span=[0, 3]
-    numberofpouints=100
-    q1, q2, p1, p2, Dq1, Dq2, Dp1, Dp2, t_eval = get_trajectory(t_span=t_span, numberofpouints=numberofpouints, noise_std=0.01)
+    q1, q2, p1, p2, Dq1, Dq2, Dp1, Dp2, t_eval = get_trajectory(timescale=60)
 
     import matplotlib.pyplot as plt
     import matplotlib.animation as animation
@@ -110,10 +107,10 @@ if __name__ == "__main__":
 
         line.set_data(thisx, thisy)
         trace.set_data(history_x, history_y)
-        time_text.set_text(time_template % (i*1*(t_span[1]-t_span[0])/numberofpouints))
+        time_text.set_text(time_template % (i*1*(t_eval[-1]-t_eval[0])/len(t_eval)))
         return line, trace, time_text
 
 
     ani = animation.FuncAnimation(
-        fig, animate, len(y1), interval=1000*(t_span[1]-t_span[0])/numberofpouints, blit=True)
+        fig, animate, len(y1), interval=1000*(t_eval[-1]-t_eval[0])/len(t_eval), blit=True)
     plt.show() 

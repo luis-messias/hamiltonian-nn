@@ -30,7 +30,6 @@ def get_args():
     parser.add_argument('--seed', default=0, type=int, help='random seed')
     parser.add_argument('--save_dir', default=THIS_DIR, type=str, help='where to save the trained model')
     parser.add_argument('--device', default='cuda', type=str, help='train using cuda!')
-    parser.add_argument('--noise_std', default=0, type=float, help='Noise on data')
     parser.set_defaults(feature=True)
     return parser.parse_args()
 
@@ -52,7 +51,7 @@ def train(args):
 
   # arrange data
   print("Getting data")
-  data = get_dataset_with_cache(seed=args.seed, samples=500, noise_std=args.noise_std)
+  data = get_dataset_with_cache(seed=args.seed)
   x = torch.tensor( data['x'], requires_grad=True, dtype=torch.float32).to(args.device)
   test_x = torch.tensor( data['test_x'], requires_grad=True, dtype=torch.float32).to(args.device)
   dxdt = torch.Tensor(data['dx']).to(args.device)
