@@ -1,5 +1,6 @@
-# Hamiltonian Neural Networks | 2019
-# Sam Greydanus, Misko Dzamba, Jason Yosinski
+import os
+import pickle 
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 import autograd
 import autograd.numpy as np
@@ -38,6 +39,18 @@ def get_trajectory(t_span=[0,3], numberofpouints=100, y0=None, noise_std=0.01, *
     p2 += np.random.randn(*p2.shape)*noise_std
     return q1, q2, p1, p2, Dq1, Dq2, Dp1, Dp2, t_eval
 
+def get_dataset_with_cache(**kwargs):
+    if not os.path.isfile(f'{THIS_DIR}/data_double_pend.pkl'):
+        data = get_dataset(**kwargs)
+        with open(f'{THIS_DIR}/data_double_pend.pkl', 'wb') as f:
+            pickle.dump(data, f)
+        return data
+    else:
+          with open(f'{THIS_DIR}/data_double_pend.pkl', 'rb') as f:
+              data = pickle.load(f)
+              return data
+
+
 def get_dataset(seed=0, samples=50, test_split=0.5, **kwargs):
     data = {'meta': locals()}
 
@@ -45,6 +58,8 @@ def get_dataset(seed=0, samples=50, test_split=0.5, **kwargs):
     np.random.seed(seed)
     xs, dxs = [], []
     for s in range(samples):
+        if s%10 == 0:
+            print(f'Sample number: {s}')
         q1, q2, p1, p2, Dq1, Dq2, Dp1, Dp2, t = get_trajectory(**kwargs)
         xs.append( np.stack( [q1, q2, p1, p2]).T )
         dxs.append( np.stack( [Dq1, Dq2, Dp1, Dp2]).T )
