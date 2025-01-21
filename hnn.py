@@ -87,7 +87,7 @@ class modHNN(torch.nn.Module):
         if self.baseline:
             return self.differentiable_model(x)
         sin = torch.sin(x[:,0])
-        cos = torch.sin(x[:,0])
+        cos = torch.cos(x[:,0])
         z = torch.column_stack([sin,cos,x[:,0],x[:,1]])
         y = self.differentiable_model(z)
         assert y.dim() == 2 and y.shape[1] == 2, "Output tensor should have shape [batch_size, 2]"
